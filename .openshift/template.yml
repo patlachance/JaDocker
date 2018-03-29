@@ -1,0 +1,401 @@
+apiVersion: v1
+items:
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      kompose.cmd: /usr/local/bin/kompose --provider=openshift --build build-config
+        --controller --file=docker-compose.yml convert --out template.yml
+      kompose.version: 1.10.0 (8bb0907)
+    creationTimestamp: null
+    labels:
+      io.kompose.service: jadehello
+    name: jadehello
+  spec:
+    ports:
+    - name: "1099"
+      port: 1099
+      targetPort: 1099
+    selector:
+      io.kompose.service: jadehello
+  status:
+    loadBalancer: {}
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      kompose.cmd: /usr/local/bin/kompose --provider=openshift --build build-config
+        --controller --file=docker-compose.yml convert --out template.yml
+      kompose.version: 1.10.0 (8bb0907)
+    creationTimestamp: null
+    labels:
+      io.kompose.service: jademultipleagents
+    name: jademultipleagents
+  spec:
+    clusterIP: None
+    ports:
+    - name: headless
+      port: 55555
+      targetPort: 0
+    selector:
+      io.kompose.service: jademultipleagents
+  status:
+    loadBalancer: {}
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      kompose.cmd: /usr/local/bin/kompose --provider=openshift --build build-config
+        --controller --file=docker-compose.yml convert --out template.yml
+      kompose.version: 1.10.0 (8bb0907)
+    creationTimestamp: null
+    labels:
+      io.kompose.service: jadetimeagent
+    name: jadetimeagent
+  spec:
+    ports:
+    - name: "1100"
+      port: 1100
+      targetPort: 1100
+    selector:
+      io.kompose.service: jadetimeagent
+  status:
+    loadBalancer: {}
+- apiVersion: v1
+  kind: DeploymentConfig
+  metadata:
+    annotations:
+      kompose.cmd: /usr/local/bin/kompose --provider=openshift --build build-config
+        --controller --file=docker-compose.yml convert --out template.yml
+      kompose.version: 1.10.0 (8bb0907)
+    creationTimestamp: null
+    labels:
+      io.kompose.service: jadehello
+    name: jadehello
+  spec:
+    replicas: 1
+    selector:
+      io.kompose.service: jadehello
+    strategy:
+      resources: {}
+    template:
+      metadata:
+        creationTimestamp: null
+        labels:
+          io.kompose.service: jadehello
+      spec:
+        containers:
+        - image: ' '
+          name: jadehello
+          ports:
+          - containerPort: 1099
+          resources: {}
+        restartPolicy: Always
+    test: false
+    triggers:
+    - type: ConfigChange
+    - imageChangeParams:
+        automatic: true
+        containerNames:
+        - jadehello
+        from:
+          kind: ImageStreamTag
+          name: jadehello:latest
+      type: ImageChange
+  status: {}
+- apiVersion: v1
+  kind: ImageStream
+  metadata:
+    creationTimestamp: null
+    labels:
+      io.kompose.service: jadehello
+    name: jadehello
+  spec:
+    tags:
+    - annotations: null
+      from:
+        kind: DockerImage
+        name: theophile/jadocker
+      generation: null
+      importPolicy: {}
+      name: latest
+  status:
+    dockerImageRepository: ""
+- apiVersion: v1
+  kind: BuildConfig
+  metadata:
+    annotations:
+      kompose.cmd: /usr/local/bin/kompose --provider=openshift --build build-config
+        --controller --file=docker-compose.yml convert --out template.yml
+      kompose.version: 1.10.0 (8bb0907)
+    creationTimestamp: null
+    labels:
+      io.kompose.service: jadehello
+    name: jadehello
+  spec:
+    nodeSelector: null
+    output:
+      to:
+        kind: ImageStreamTag
+        name: jadehello:latest
+    postCommit: {}
+    resources: {}
+    runPolicy: Serial
+    source:
+      git:
+        ref: master
+        uri: https://github.com/patlachance/JaDocker.git
+      type: Git
+    strategy:
+      dockerStrategy:
+        dockerfilePath: Dockerfile
+      type: Docker
+    triggers:
+    - type: ConfigChange
+  status:
+    lastVersion: 0
+- apiVersion: v1
+  kind: DeploymentConfig
+  metadata:
+    annotations:
+      kompose.cmd: /usr/local/bin/kompose --provider=openshift --build build-config
+        --controller --file=docker-compose.yml convert --out template.yml
+      kompose.version: 1.10.0 (8bb0907)
+    creationTimestamp: null
+    labels:
+      io.kompose.service: jademultipleagents
+    name: jademultipleagents
+  spec:
+    replicas: 1
+    selector:
+      io.kompose.service: jademultipleagents
+    strategy:
+      resources: {}
+    template:
+      metadata:
+        creationTimestamp: null
+        labels:
+          io.kompose.service: jademultipleagents
+      spec:
+        containers:
+        - env:
+          - name: AGENT_JAR_FILE
+            value: jadeExamples.jar
+          - name: AGENT_TABLE
+            value: a:examples.hello.HelloWorldAgent;b:examples.hello.HelloWorldAgent;c:examples.hello.HelloWorldAgent;d:examples.hello.HelloWorldAgent
+          - name: CONTAINER_NAME
+            value: ContainerSender
+          image: ' '
+          name: jademultipleagents
+          resources: {}
+        restartPolicy: Always
+    test: false
+    triggers:
+    - type: ConfigChange
+    - imageChangeParams:
+        automatic: true
+        containerNames:
+        - jademultipleagents
+        from:
+          kind: ImageStreamTag
+          name: jademultipleagents:latest
+      type: ImageChange
+  status: {}
+- apiVersion: v1
+  kind: ImageStream
+  metadata:
+    creationTimestamp: null
+    labels:
+      io.kompose.service: jademultipleagents
+    name: jademultipleagents
+  spec:
+    tags:
+    - annotations: null
+      from:
+        kind: DockerImage
+        name: theophile/jadocker
+      generation: null
+      importPolicy: {}
+      name: latest
+  status:
+    dockerImageRepository: ""
+- apiVersion: v1
+  kind: BuildConfig
+  metadata:
+    annotations:
+      kompose.cmd: /usr/local/bin/kompose --provider=openshift --build build-config
+        --controller --file=docker-compose.yml convert --out template.yml
+      kompose.version: 1.10.0 (8bb0907)
+    creationTimestamp: null
+    labels:
+      io.kompose.service: jademultipleagents
+    name: jademultipleagents
+  spec:
+    nodeSelector: null
+    output:
+      to:
+        kind: ImageStreamTag
+        name: jademultipleagents:latest
+    postCommit: {}
+    resources: {}
+    runPolicy: Serial
+    source:
+      git:
+        ref: master
+        uri: https://github.com/patlachance/JaDocker.git
+      type: Git
+    strategy:
+      dockerStrategy:
+        dockerfilePath: Dockerfile
+      type: Docker
+    triggers:
+    - type: ConfigChange
+  status:
+    lastVersion: 0
+- apiVersion: v1
+  kind: DeploymentConfig
+  metadata:
+    annotations:
+      kompose.cmd: /usr/local/bin/kompose --provider=openshift --build build-config
+        --controller --file=docker-compose.yml convert --out template.yml
+      kompose.version: 1.10.0 (8bb0907)
+    creationTimestamp: null
+    labels:
+      io.kompose.service: jadetimeagent
+    name: jadetimeagent
+  spec:
+    replicas: 1
+    selector:
+      io.kompose.service: jadetimeagent
+    strategy:
+      resources: {}
+    template:
+      metadata:
+        creationTimestamp: null
+        labels:
+          io.kompose.service: jadetimeagent
+      spec:
+        containers:
+        - env:
+          - name: AGENT_CLASS
+            value: examples.behaviours.TimeAgent
+          - name: AGENT_JAR_FILE
+            value: jadeExamples.jar
+          - name: AGENT_NAME
+            value: testAgent
+          - name: CONTAINER_NAME
+            value: testContainer
+          - name: JADE_PORT
+            value: "1100"
+          image: ' '
+          name: jadetimeagent
+          ports:
+          - containerPort: 1100
+          resources: {}
+        restartPolicy: Always
+    test: false
+    triggers:
+    - type: ConfigChange
+    - imageChangeParams:
+        automatic: true
+        containerNames:
+        - jadetimeagent
+        from:
+          kind: ImageStreamTag
+          name: jadetimeagent:latest
+      type: ImageChange
+  status: {}
+- apiVersion: v1
+  kind: ImageStream
+  metadata:
+    creationTimestamp: null
+    labels:
+      io.kompose.service: jadetimeagent
+    name: jadetimeagent
+  spec:
+    tags:
+    - annotations: null
+      from:
+        kind: DockerImage
+        name: theophile/jadocker
+      generation: null
+      importPolicy: {}
+      name: latest
+  status:
+    dockerImageRepository: ""
+- apiVersion: v1
+  kind: BuildConfig
+  metadata:
+    annotations:
+      kompose.cmd: /usr/local/bin/kompose --provider=openshift --build build-config
+        --controller --file=docker-compose.yml convert --out template.yml
+      kompose.version: 1.10.0 (8bb0907)
+    creationTimestamp: null
+    labels:
+      io.kompose.service: jadetimeagent
+    name: jadetimeagent
+  spec:
+    nodeSelector: null
+    output:
+      to:
+        kind: ImageStreamTag
+        name: jadetimeagent:latest
+    postCommit: {}
+    resources: {}
+    runPolicy: Serial
+    source:
+      git:
+        ref: master
+        uri: https://github.com/patlachance/JaDocker.git
+      type: Git
+    strategy:
+      dockerStrategy:
+        dockerfilePath: Dockerfile
+      type: Docker
+    triggers:
+    - type: ConfigChange
+  status:
+    lastVersion: 0
+- apiVersion: v1
+  kind: Route
+  metadata:
+    annotations:
+      kubernetes.io/tls-acme: 'true'
+    labels:
+      io.kompose.service: jadehello
+    name: hello
+    namespace: itim-jade
+  spec:
+    port:
+      targetPort: '1099'
+    tls:
+      insecureEdgeTerminationPolicy: Redirect
+      termination: edge
+    to:
+      kind: Service
+      name: jadehello
+      weight: 100
+    wildcardPolicy: None
+- apiVersion: v1
+  kind: Route
+  metadata:
+    annotations:
+      kubernetes.io/tls-acme: 'true'
+    labels:
+      io.kompose.service: jadetimeagent
+    name: time-agent
+    namespace: itim-jade
+  spec:
+    port:
+      targetPort: '1100'
+    tls:
+      insecureEdgeTerminationPolicy: Redirect
+      termination: edge
+    to:
+      kind: Service
+      name: jadetimeagent
+      weight: 100
+    wildcardPolicy: None
+kind: List
+metadata: {}
+

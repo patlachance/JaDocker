@@ -1,6 +1,6 @@
 #this docker-compose file is used to test the build of JaDocker. You can use it as template for your services.
 
-version: "2.0"
+version: "2"
 services:
   jadeTimeAgent:
     image: theophile/jadocker

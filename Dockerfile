@@ -26,6 +26,14 @@ ENV AGENT_CLASS ${AGENT_CLASS:-"examples.hello.HelloWorldAgent"}
 ENV JADE_PORT ${JADE_PORT:-1099}
 EXPOSE $JADE_PORT
 
+### Begin - porting to openshift
+# container will run with gid=0 but uid!=0, applying group perms based on user perms
+RUN chmod -R g=u .
+
+# remapping to default openshift user
+USER 1000
+### End - porting to openshift
+
 CMD echo "Your jar file:" ${AGENT_JAR_FILE} && \
     AGENTS=${AGENT_TABLE:-$AGENT_NAME\:$AGENT_CLASS} && \
     echo "\nCommand executed: jade.Boot -container-name" ${CONTAINER_NAME} "-local-port" ${JADE_PORT} "-agents" "$AGENTS"  && \
